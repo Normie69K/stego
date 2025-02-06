@@ -17,4 +17,11 @@
 
         <string name="disclaimer">⚠️ Disclaimer:\n🛑 This app is created for educational purposes only.\n🚫 Do NOT use this app for any illegal activities, hacking, or spreading malware.\n💡 We are NOT responsible for any misuse of this tool. Use it at your own risk.\n🔒 The purpose of this app is to understand steganography, cryptography, and data security.</string>
 
+    <string name="Encode_">Enter text to encode</string>
+
+    <string name="select_image">Select Image</string>
+    <string name="enter_text_hint">Enter text to encode</string>
+    <string name="encode_text_">Encode Text</string>
+    <string name="selected_image">Selected Image</string>
+
 </resources>

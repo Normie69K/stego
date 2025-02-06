@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".InfoActivity" />
-
+        <activity android:name=".EncodeTextToImg" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
