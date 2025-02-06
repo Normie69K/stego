@@ -43,12 +43,12 @@ public class MainActivity extends AppCompatActivity {
         // Set Click Listeners for Second Image and Text (Redirect to EncodeActivity2)
         img2.setOnClickListener(v -> {
             playClickSound();
-            startActivity(new Intent(MainActivity.this, EncodeActivity2.class));
+            startActivity(new Intent(MainActivity.this, EncodeActivity.class));
         });
 
         text2.setOnClickListener(v -> {
             playClickSound();
-            startActivity(new Intent(MainActivity.this, EncodeActivity2.class));
+            startActivity(new Intent(MainActivity.this, EncodeActivity.class));
         });
 
         // Set Click Listeners for Third Image and Text (Redirect to DecodeActivity)

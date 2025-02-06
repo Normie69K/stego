@@ -24,6 +24,7 @@
         <activity android:name=".InfoActivity" />
         <activity android:name=".EncodeTextToImg" />
         <activity android:name=".DecodeActivity" />
+        <activity android:name=".EncodeActivity"/>
 
 
         <meta-data
