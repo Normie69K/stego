@@ -7,6 +7,6 @@ public class InfoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_info);  // Create this layout
+        setContentView(R.layout.instructions);  // Create this layout
     }
 }

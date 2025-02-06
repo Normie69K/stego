@@ -23,5 +23,8 @@
     <string name="enter_text_hint">Enter text to encode</string>
     <string name="encode_text_">Encode Text</string>
     <string name="selected_image">Selected Image</string>
+    <string name="decrypt_text">decrypt</string>
+    <string name="decoded_text_placeholder">Decoded text will appear here</string>
+
 
 </resources>
