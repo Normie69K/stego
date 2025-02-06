@@ -1,0 +1,104 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F3F4F6">
+
+    <!-- Toolbar (Demo, No Functionality) -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#7363F0"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:fontFamily="@font/average_sans"
+            android:text="Info Page"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"/>
+    </RelativeLayout>
+
+    <!-- Main Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Steganography Tool"
+                android:textSize="22sp"
+                android:textColor="#333333"
+                android:fontFamily="@font/average_sans"
+                android:textStyle="bold"
+                android:paddingBottom="10dp"/>
+
+            <!-- Features -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Features:\n✅ Convert text into images\n✅ Convert one image into another\n✅ Decode hidden messages from images"
+                android:textSize="18sp"
+                android:textColor="#444444"
+                android:fontFamily="@font/average_sans"
+                android:paddingBottom="15dp"/>
+
+            <!-- Encoding Instructions (Text to Image) -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Encoding (Hiding Text into an Image):\n1. Open the app and navigate to the Text-to-Image section.\n2. Enter the secret text message you want to hide.\n3. Select an image where you want to hide the text.\n4. Click the 'Encode' button.\n5. Save or share the encoded image."
+                android:textSize="18sp"
+                android:textColor="#444444"
+                android:fontFamily="@font/average_sans"
+                android:paddingBottom="15dp"/>
+
+            <!-- Encoding Instructions (Image to Image) -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Encoding (Hiding One Image Inside Another):\n1. Open the app and go to the Image-to-Image section.\n2. Select the cover image (the visible image).\n3. Select the hidden image (the one to be encoded inside).\n4. Click the 'Encode' button.\n5. Save or share the encoded image."
+                android:textSize="18sp"
+                android:textColor="#444444"
+                android:fontFamily="@font/average_sans"
+                android:paddingBottom="15dp"/>
+
+            <!-- Decoding Instructions -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Decoding (Extracting Hidden Data):\n1. Open the app and navigate to the Decode section.\n2. Select the steganographic image that contains hidden data.\n3. Click the 'Decode' button.\n4. If the image contains hidden text, it will be displayed.\n5. If the image contains another hidden image, it will be extracted and shown."
+                android:textSize="18sp"
+                android:textColor="#444444"
+                android:fontFamily="@font/average_sans"
+                android:paddingBottom="15dp"/>
+
+            <!-- Disclaimer -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚠️ Disclaimer:\n🛑 This app is created for educational purposes only.\n🚫 Do NOT use this app for any illegal activities, hacking, or spreading malware.\n💡 We are NOT responsible for any misuse of this tool. Use it at your own risk.\n🔒 The purpose of this app is to understand steganography, cryptography, and data security."
+                android:textSize="18sp"
+                android:textColor="#D32F2F"
+                android:fontFamily="@font/average_sans"
+                android:textStyle="bold"
+                android:paddingBottom="10dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
