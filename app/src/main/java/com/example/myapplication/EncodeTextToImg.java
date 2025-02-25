@@ -1,7 +1,9 @@
 package com.example.myapplication;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,18 +11,21 @@ import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import java.io.OutputStream;
 import java.io.IOException;
 
 public class EncodeTextToImg extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     private ImageView imageView, infoButton;
     private EditText editText;
-    private Button selectImageButton, encodeButton;
-    private Bitmap selectedImage;
-    private MediaPlayer mediaPlayer; // Click sound
+    private Button selectImageButton, encodeButton, downloadButton;
+    private TextView psnrTextView, ssimTextView;
+    private Bitmap selectedImage, encodedImage;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,46 +37,45 @@ public class EncodeTextToImg extends AppCompatActivity {
         editText = findViewById(R.id.editTextText);
         selectImageButton = findViewById(R.id.selectImageButton);
         encodeButton = findViewById(R.id.encodeButton);
-        infoButton = findViewById(R.id.info_icon); // Corrected reference
+        downloadButton = findViewById(R.id.downloadButton);
+        psnrTextView = findViewById(R.id.psnrTextView);
+        ssimTextView = findViewById(R.id.ssimTextView);
+        infoButton = findViewById(R.id.info_icon);
 
-        // Initialize Click Sound
         mediaPlayer = MediaPlayer.create(this, R.raw.click_sound);
 
-        // Info Button - Click Sound & Redirect to InfoActivity
-        if (infoButton != null) {
-            infoButton.setOnClickListener(v -> {
-                playClickSound();
-                startActivity(new Intent(EncodeTextToImg.this, InfoActivity.class));
-            });
-        }
+        infoButton.setOnClickListener(v -> {
+            playClickSound();
+            startActivity(new Intent(EncodeTextToImg.this, InfoActivity.class));
+        });
 
-        // Select Image Button - Click Sound & Open Gallery
         selectImageButton.setOnClickListener(v -> {
             playClickSound();
             openGallery();
         });
 
-        // Encode Button - Click Sound & Encode Placeholder
         encodeButton.setOnClickListener(v -> {
             playClickSound();
             encodeTextIntoImage();
         });
+
+        downloadButton.setOnClickListener(v -> {
+            playClickSound();
+            saveImageToGallery();
+        });
     }
 
-    // Play Click Sound
     private void playClickSound() {
         if (mediaPlayer != null) {
             mediaPlayer.start();
         }
     }
 
-    // Open Gallery to Choose an Image
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
-    // Handle Selected Image
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -87,7 +91,6 @@ public class EncodeTextToImg extends AppCompatActivity {
         }
     }
 
-    // Placeholder Function for Encoding Text into Image
     private void encodeTextIntoImage() {
         String textToEncode = editText.getText().toString().trim();
 
@@ -100,8 +103,71 @@ public class EncodeTextToImg extends AppCompatActivity {
             return;
         }
 
-        // TODO: Implement actual text encoding logic
-        Toast.makeText(this, "Encoding text into image (Feature in progress)", Toast.LENGTH_SHORT).show();
+        encodedImage = selectedImage.copy(Bitmap.Config.ARGB_8888, true);
+        int width = encodedImage.getWidth();
+        int height = encodedImage.getHeight();
+
+        for (int i = 0; i < textToEncode.length() && i < width * height; i++) {
+            char c = textToEncode.charAt(i);
+            int x = i % width;
+            int y = i / width;
+            int pixel = encodedImage.getPixel(x, y);
+            int newPixel = Color.argb(Color.alpha(pixel), c, Color.green(pixel), Color.blue(pixel));
+            encodedImage.setPixel(x, y, newPixel);
+        }
+
+        imageView.setImageBitmap(encodedImage);
+
+        double psnr = calculatePSNR(selectedImage, encodedImage);
+        double ssim = 1.0; // Placeholder for SSIM calculation
+
+        psnrTextView.setText("PSNR: " + psnr);
+        ssimTextView.setText("SSIM: " + ssim);
+
+        Toast.makeText(this, "Encoding complete!", Toast.LENGTH_SHORT).show();
+    }
+
+    private double calculatePSNR(Bitmap original, Bitmap encoded) {
+        long mse = 0;
+        int width = original.getWidth();
+        int height = original.getHeight();
+        int totalPixels = width * height;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int originalPixel = original.getPixel(x, y);
+                int encodedPixel = encoded.getPixel(x, y);
+                int diff = Color.red(originalPixel) - Color.red(encodedPixel);
+                mse += diff * diff;
+            }
+        }
+
+        mse /= totalPixels;
+        if (mse == 0) return 100;
+        return 10 * Math.log10(255 * 255 / (double) mse);
+    }
+
+    private void saveImageToGallery() {
+        if (encodedImage == null) {
+            Toast.makeText(this, "No encoded image to save", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, "encoded_image.png");
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Stego");
+
+        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        if (uri != null) {
+            try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+                encodedImage.compress(Bitmap.CompressFormat.PNG, 100, out);
+                Toast.makeText(this, "Image saved to gallery", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override

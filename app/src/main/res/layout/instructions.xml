@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -5,7 +6,7 @@
     android:orientation="vertical"
     android:background="#F3F4F6">
 
-    <!-- Toolbar (Demo, No Functionality) -->
+    <!-- Toolbar -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:fontFamily="@font/average_sans"
-            android:text="Info Page"
+            android:text="About the App"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"/>
@@ -36,7 +37,7 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <!-- Title -->
+            <!-- App Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -47,41 +48,41 @@
                 android:textStyle="bold"
                 android:paddingBottom="10dp"/>
 
+            <!-- What is Steganography -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔍 What is Steganography?\nSteganography is a technique used to hide secret data inside digital files like images, videos, or audio without altering the visible content significantly."
+                android:textSize="18sp"
+                android:textColor="#444444"
+                android:fontFamily="@font/average_sans"
+                android:paddingBottom="15dp"/>
+
             <!-- Features -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Features:\n✅ Convert text into images\n✅ Convert one image into another\n✅ Decode hidden messages from images"
+                android:text="✨ Features:\n✅ Hide text inside images\n✅ Hide one image inside another\n✅ Decode hidden messages from images\n✅ High security with minimal image quality loss"
                 android:textSize="18sp"
                 android:textColor="#444444"
                 android:fontFamily="@font/average_sans"
                 android:paddingBottom="15dp"/>
 
-            <!-- Encoding Instructions (Text to Image) -->
+            <!-- Encoding Instructions -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Encoding (Hiding Text into an Image):\n1. Open the app and navigate to the Text-to-Image section.\n2. Enter the secret text message you want to hide.\n3. Select an image where you want to hide the text.\n4. Click the 'Encode' button.\n5. Save or share the encoded image."
+                android:text="🛠 How to Use:\n1️⃣ Open the app and navigate to the Encode section.\n2️⃣ Select an image to use as a cover.\n3️⃣ Enter the secret text or choose an image to hide.\n4️⃣ Click 'Encode' and save the output.\n5️⃣ To decode, upload the encoded image and click 'Decode'."
                 android:textSize="18sp"
                 android:textColor="#444444"
                 android:fontFamily="@font/average_sans"
                 android:paddingBottom="15dp"/>
 
-            <!-- Encoding Instructions (Image to Image) -->
+            <!-- PSNR and SSIM Information -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Encoding (Hiding One Image Inside Another):\n1. Open the app and go to the Image-to-Image section.\n2. Select the cover image (the visible image).\n3. Select the hidden image (the one to be encoded inside).\n4. Click the 'Encode' button.\n5. Save or share the encoded image."
-                android:textSize="18sp"
-                android:textColor="#444444"
-                android:fontFamily="@font/average_sans"
-                android:paddingBottom="15dp"/>
-
-            <!-- Decoding Instructions -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Decoding (Extracting Hidden Data):\n1. Open the app and navigate to the Decode section.\n2. Select the steganographic image that contains hidden data.\n3. Click the 'Decode' button.\n4. If the image contains hidden text, it will be displayed.\n5. If the image contains another hidden image, it will be extracted and shown."
+                android:text="📊 Image Quality Metrics:\n🔹 PSNR (Peak Signal-to-Noise Ratio): Measures how much noise is added during encoding. Higher is better.\n🔹 SSIM (Structural Similarity Index): Compares structural similarity between images. Closer to 1 is better."
                 android:textSize="18sp"
                 android:textColor="#444444"
                 android:fontFamily="@font/average_sans"
@@ -91,14 +92,34 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="⚠️ Disclaimer:\n🛑 This app is created for educational purposes only.\n🚫 Do NOT use this app for any illegal activities, hacking, or spreading malware.\n💡 We are NOT responsible for any misuse of this tool. Use it at your own risk.\n🔒 The purpose of this app is to understand steganography, cryptography, and data security."
+                android:text="⚠️ Disclaimer:\n🔸 This app is for educational purposes only.\n🔸 Do NOT use it for illegal activities.\n🔸 The developer is not responsible for misuse."
                 android:textSize="18sp"
                 android:textColor="#D32F2F"
                 android:fontFamily="@font/average_sans"
                 android:textStyle="bold"
                 android:paddingBottom="10dp"/>
 
+            <!-- Developer Name with Stylish UI -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Developed by"
+                android:textSize="18sp"
+                android:textColor="#333333"
+                android:fontFamily="@font/average_sans"
+                android:textStyle="bold"
+                android:paddingTop="20dp"
+                android:paddingBottom="5dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="KARAN SINGH"
+                android:textSize="26sp"
+                android:textColor="#7363F0"
+                android:fontFamily="@font/average_sans"
+                android:textStyle="bold"
+                android:paddingBottom="15dp"/>
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

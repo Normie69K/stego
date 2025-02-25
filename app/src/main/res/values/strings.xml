@@ -25,6 +25,8 @@
     <string name="selected_image">Selected Image</string>
     <string name="decrypt_text">decrypt</string>
     <string name="decoded_text_placeholder">Decoded text will appear here</string>
+    <string name="decoded_image">Decoded Image</string>
+
 
 
 </resources>

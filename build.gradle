@@ -1,0 +1,19 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://chaquo.com/maven" }  // ✅ Add this
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.2.1"  // 🔹 Use your version
+        classpath "com.chaquo.python:gradle:16.0.0"  // ✅ Add this
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://chaquo.com/maven" }  // ✅ Ensure this is included
+    }
+}

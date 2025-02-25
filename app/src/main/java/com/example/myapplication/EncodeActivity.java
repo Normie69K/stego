@@ -1,58 +1,52 @@
 package com.example.myapplication;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class EncodeActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST_1 = 1;
     private static final int PICK_IMAGE_REQUEST_2 = 2;
 
     private ImageView baseImageView, hiddenImageView, encodedImageView;
-    private Button selectBaseImageButton, selectHiddenImageButton, encodeButton;
-    private Bitmap baseImage, hiddenImage;
-    private ScrollView scrollView;
+    private Button selectBaseImageButton, selectHiddenImageButton, encodeButton, downloadButton;
+    private TextView psnrTextView, ssimTextView;
+    private Bitmap baseImage, hiddenImage, encodedBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_encode);
 
-        // Initialize UI Components
-//        scrollView = findViewById(R.id.scrollView);  // Ensure scrolling
         baseImageView = findViewById(R.id.baseImagePreview);
         hiddenImageView = findViewById(R.id.hiddenImagePreview);
         encodedImageView = findViewById(R.id.encodedImagePreview);
         selectBaseImageButton = findViewById(R.id.selectBaseImageButton);
         selectHiddenImageButton = findViewById(R.id.selectHiddenImageButton);
         encodeButton = findViewById(R.id.encodeButton);
+        downloadButton = findViewById(R.id.downloadButton);
+        psnrTextView = findViewById(R.id.psnrTextView);
+        ssimTextView = findViewById(R.id.ssimTextView);
 
-        // Upload Base Image
         selectBaseImageButton.setOnClickListener(v -> selectImage(PICK_IMAGE_REQUEST_1));
-
-        // Upload Hidden Image
         selectHiddenImageButton.setOnClickListener(v -> selectImage(PICK_IMAGE_REQUEST_2));
-
-        // Encode Button
         encodeButton.setOnClickListener(v -> encodeImage());
-
-        // Info Button Click Sound + Redirect
-        findViewById(R.id.info_icon).setOnClickListener(v -> {
-            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.click_sound);
-            mediaPlayer.start();
-            startActivity(new Intent(EncodeActivity.this, InfoActivity.class));
-        });
+        downloadButton.setOnClickListener(v -> saveEncodedImage());
     }
 
     private void selectImage(int requestCode) {
@@ -87,12 +81,55 @@ public class EncodeActivity extends AppCompatActivity {
             return;
         }
 
-        // Simulating encoding process (Replace with actual encoding logic)
-        encodedImageView.setImageBitmap(baseImage);  // For now, just showing the base image
+        int width = baseImage.getWidth();
+        int height = baseImage.getHeight();
+
+        if (hiddenImage.getWidth() > width || hiddenImage.getHeight() > height) {
+            Toast.makeText(this, "Hidden image must be smaller than base image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        encodedBitmap = baseImage.copy(baseImage.getConfig(), true);
+
+        for (int x = 0; x < hiddenImage.getWidth(); x++) {
+            for (int y = 0; y < hiddenImage.getHeight(); y++) {
+                int basePixel = baseImage.getPixel(x, y);
+                int hiddenPixel = hiddenImage.getPixel(x, y);
+
+                int newRed = (Color.red(basePixel) & 0xF8) | (Color.red(hiddenPixel) >> 5);
+                int newGreen = (Color.green(basePixel) & 0xFC) | (Color.green(hiddenPixel) >> 6);
+                int newBlue = (Color.blue(basePixel) & 0xF8) | (Color.blue(hiddenPixel) >> 5);
+
+                int newPixel = Color.rgb(newRed, newGreen, newBlue);
+                encodedBitmap.setPixel(x, y, newPixel);
+            }
+        }
+
+        encodedImageView.setImageBitmap(encodedBitmap);
         encodedImageView.setVisibility(View.VISIBLE);
         Toast.makeText(this, "Encoding successful!", Toast.LENGTH_SHORT).show();
+    }
 
-        // Scroll to the encoded image
-        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+    private void saveEncodedImage() {
+        if (encodedBitmap == null) {
+            Toast.makeText(this, "No encoded image to save", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, "encoded_image.png");
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Stego/");
+
+        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        if (uri != null) {
+            try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
+                encodedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                Toast.makeText(this, "Image saved to Pictures/Stego/", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

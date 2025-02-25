@@ -37,8 +37,8 @@
             <!-- Base Image Preview -->
             <ImageView
                 android:id="@+id/baseImagePreview"
-                android:layout_width="250dp"
-                android:layout_height="250dp"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/circle_background"
                 android:scaleType="centerCrop"
@@ -88,6 +88,38 @@
                 android:scaleType="centerCrop"
                 android:contentDescription="Encoded Image Preview"
                 android:layout_gravity="center_horizontal"/>
+
+            <!-- Download Button -->
+            <Button
+                android:id="@+id/downloadButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Download Encoded Image"
+                android:backgroundTint="@color/primaryColor"
+                android:textColor="@android:color/white"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"/>
+
+            <!-- PSNR & SSIM Values -->
+            <TextView
+                android:id="@+id/psnrTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PSNR: N/A"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"/>
+
+            <TextView
+                android:id="@+id/ssimTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SSIM: N/A"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp"/>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
