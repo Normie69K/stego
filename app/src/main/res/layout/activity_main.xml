@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -8,112 +7,126 @@
     android:layout_height="match_parent"
     android:background="#F3F4F6"
     android:fitsSystemWindows="true"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <!-- Toolbar (Already Perfect) -->
-    <include layout="@layout/toolbar" />
 
     <!-- First Image -->
 
     <!-- First Text -->
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="309dp"
-        android:layout_height="131dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/circle_background"
-        android:clickable="true"
-        android:contentDescription="Goku Image 1"
-        android:focusable="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_4"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Encode"
-        android:textSize="20sp"
-        android:textColor="#333333"
-        android:fontFamily="@font/average_sans"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/imageView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
 
     <!-- Second Image -->
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="309dp"
-        android:layout_height="131dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/circle_background"
-        android:clickable="true"
-        android:contentDescription="Goku Image 2"
-        android:focusable="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView" />
 
     <!-- Second Text -->
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Encode_01"
-        android:textSize="20sp"
-        android:textColor="#333333"
-        android:fontFamily="@font/average_sans"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/imageView2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
 
     <!-- Third Image -->
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="309dp"
-        android:layout_height="131dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/circle_background"
-        android:clickable="true"
-        android:contentDescription="Goku Image 3"
-        android:focusable="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_6"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView2" />
 
     <!-- Third Text -->
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Decode"
-        android:textSize="20sp"
-        android:textColor="#333333"
-        android:fontFamily="@font/average_sans"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/imageView3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/toolbar" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="309dp"
+                android:layout_height="131dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/circle_background"
+                android:clickable="true"
+                android:contentDescription="Goku Image 1"
+                android:focusable="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_4" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/average_sans"
+                android:text="@string/Encode"
+                android:textColor="#333333"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="309dp"
+                android:layout_height="131dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/circle_background"
+                android:clickable="true"
+                android:contentDescription="Goku Image 2"
+                android:focusable="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_5" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/average_sans"
+                android:gravity="center"
+                android:text="@string/Encode_01"
+                android:textColor="#333333"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="309dp"
+                android:layout_height="131dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/circle_background"
+                android:clickable="true"
+                android:contentDescription="Goku Image 3"
+                android:focusable="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_6" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/average_sans"
+                android:gravity="center"
+                android:text="@string/Decode"
+                android:textColor="#333333"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>
