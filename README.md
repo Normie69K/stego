@@ -1,84 +1,97 @@
-# 📌 Steganography Tool
+# 🖼️ Steganography Tool
 
-Steganography Tool is an Android application that allows users to **hide and extract messages within images** securely. This project is developed for **educational purposes only** and should not be used for any malicious activities.
+Steganography Tool is an **Android application** that allows users to **securely hide and extract messages within images** using advanced steganographic techniques. The app ensures privacy while maintaining a user-friendly experience.
 
-⚠ **Note:** Some features might not work as expected.
+⚠ **Disclaimer:** This project is intended **for educational and research purposes only**. Misuse of this tool for unauthorized activities is strictly prohibited.
 
 ---
 
 ## 🔥 Features
 
-✅ **Encode Text into Images** – Hide secret messages inside images.
-✅ **Decode Messages from Images** – Extract hidden messages from encoded images.
-✅ **Image-to-Image Steganography** – Convert one image into another while embedding secret information.
-✅ **User-Friendly Interface** – Clean and simple UI for easy navigation.
-✅ **Sound Effects on Clicks** – Interactive UI with sound feedback.
-✅ **Offline Functionality** – Works without an internet connection.
-✅ **Dark/Light Mode Support** – Switch themes for better visibility.
-✅ **Error Logging for Debugging** – Track issues in Python execution.
-✅ **Exit Confirmation Dialog** – Prevent accidental app exits.
-✅ **Loading Indicator on Transitions** – Enhances user experience.
-
-⚠ **Note:** Some features may not work due to compatibility issues or ongoing development.
+✅ **Text-to-Image Steganography** – Hide secret messages within images.  
+✅ **Image-to-Image Steganography** – Embed one image inside another.  
+✅ **Efficient Message Extraction** – Retrieve hidden messages seamlessly.  
+✅ **User-Friendly Interface** – Clean, intuitive, and responsive UI.  
+✅ **Interactive Sound Effects** – Enhances user engagement.  
+✅ **Offline Functionality** – No internet connection required.  
+✅ **Dark & Light Mode Support** – Toggle themes for better visibility.
+✅ **Smooth Transitions with Loading Indicators** – Improves user experience.
 
 ---
 
-## 🚀 Installation
+## 📥 Installation
 
-### **1. Clone the Repository**
+### **1️⃣ Clone the Repository**
 ```sh
- git clone https://github.com/Normie69K/stego.git
- cd stego
-```
+git clone https://github.com/Normie69K/stego.git
+cd stego
+```  
 
-### **2. Open in Android Studio**
-- Launch **Android Studio** and select **Open an Existing Project**.
+### **2️⃣ Open in Android Studio**
+- Open **Android Studio** and select **"Open an Existing Project"**.
 - Choose the `stego` project folder.
 
-### **3. Build & Run**
-- Ensure you have an **Android Emulator** or **physical device** connected.
-- Click the **Run** button ▶️ to start the app.
+### **3️⃣ Build & Run the App**
+- Connect an **Android device** or use an **Android Emulator**.
+- Click **Run ▶️** to start the application.
 
 ---
 
-## 🛠 Usage
+## 🛠️ Usage Guide
 
-### **Encoding a Message into an Image**
-1. Select an image from your gallery.
-2. Enter the secret message.
-3. Click the **Encode** button.
-4. Save the newly generated image with the hidden message.
+### **🔐 Encoding a Message into an Image**
+1️⃣ Select an image from your gallery.  
+2️⃣ Enter the secret message.  
+3️⃣ Click the **Encode** button.  
+4️⃣ Save the newly generated steganographic image.
 
-### **Decoding a Message from an Image**
-1. Load the steganographic image.
-2. Click the **Decode** button.
-3. The hidden message will be revealed.
-
----
-
-## ⚠️ Disclaimer
-This application is intended **only for educational and research purposes**. The developers are **not responsible for any misuse** of this tool. Users should **not use it for illegal activities** such as hacking, malware distribution, or unauthorized data transfer. Use it **ethically and responsibly**.
+### **🔍 Decoding a Message from an Image**
+1️⃣ Load the steganographic image.  
+2️⃣ Click the **Decode** button.  
+3️⃣ The hidden message will be revealed.
 
 ---
 
-## 📝 Contribution
-We welcome contributions! To contribute:
-1. **Fork** the repository.
-2. Create a **new branch**:
+## 🛡️ Legal Disclaimer
+
+This application is strictly **for educational and research purposes only**. The developers **are not responsible** for any misuse of this tool. Users should **not engage in illegal activities** such as:
+
+❌ Unauthorized data transfer  
+❌ Hacking or cyberattacks  
+❌ Malware distribution
+
+Always **use this tool ethically and responsibly**.
+
+---
+
+## 🚀 Contribution
+
+Want to improve this project? We’d love your contributions!
+
+### **How to Contribute**
+1️⃣ **Fork** this repository.  
+2️⃣ Create a **feature branch**:
    ```sh
    git checkout -b feature-branch
-   ```
-3. **Make your changes** and **commit**:
+   ```  
+3️⃣ Make your modifications and **commit changes**:
    ```sh
    git commit -m "Added new feature"
-   ```
-4. **Push** to your fork and submit a **Pull Request**.
+   ```  
+4️⃣ **Push** to your fork and submit a **Pull Request (PR)**.
 
 ---
 
-## 📧 Contact
-For questions or suggestions, feel free to open an **issue** or reach out on **GitHub Discussions**.
+## 📬 Contact & Support
+
+For issues, suggestions, or discussions:
+- Open an **issue** on GitHub.
+- Join the **GitHub Discussions** for further improvements.
+
+📌 **If you find this project useful, consider giving it a ⭐ on GitHub!**
 
 ---
-🌟 **If you find this project useful, don't forget to star ⭐ the repo!**
 
+### **🚀 Let’s Build Secure Communication Together!** 🛡️
+
+This version improves clarity, formatting, and engagement while keeping it professional. Let me know if you want further tweaks! 🚀
