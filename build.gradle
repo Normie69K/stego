@@ -5,8 +5,8 @@ buildscript {
         maven { url "https://chaquo.com/maven" }  // ✅ Add this
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:8.2.1"  // 🔹 Use your version
-        classpath "com.chaquo.python:gradle:16.0.0"  // ✅ Add this
+        classpath "com.android.tools.build:gradle:8.2.2"  // 🔹 Use your version
+        classpath libs.gradle  // ✅ Add this
     }
 }
 

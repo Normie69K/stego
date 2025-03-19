@@ -1,6 +1,6 @@
 plugins {
-    id 'com.android.application'
-    id 'com.chaquo.python'  // Apply the Chaquopy plugin
+    id 'com.android.application'  // Keep the Android application plugin
+    // Remove the Chaquopy plugin: id 'com.chaquo.python'
 }
 
 android {
@@ -17,19 +17,18 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters "arm64-v8a", "x86_64" // Ensure correct architectures
+            abiFilters "arm64-v8a", "x86_64" // Keep this if you need these architectures for other native code
         }
 
-        python {
-            version "3.8"
-            // Remove the `buildPython` line unless needed for a custom Python path
-            pip {
-                install "opencv-python"
-                install "numpy"
-                install "scikit-image"
-                install "opencv-python"  // cv2
-            }
-        }
+        // python {
+        //     version "3.8"
+        //     pip {
+        //         install "opencv-python"
+        //         install "numpy"
+        //         install "scikit-image"
+        //         install "opencv-python"  // cv2
+        //     }
+        // }
     }
 
     buildFeatures {

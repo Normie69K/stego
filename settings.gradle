@@ -3,7 +3,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven { url "https://chaquo.com/maven" }  // ✅ Ensure this is included
+//        maven { url "https://chaquo.com/maven" }  // ✅ Ensure this is included
     }
 }
 
@@ -12,12 +12,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://chaquo.com/maven" }  // ✅ Ensure this is included
+//        maven { url "https://chaquo.com/maven" }  // ✅ Ensure this is included
     }
 }
 
 // 🔹 Define the root project name
-rootProject.name = "MyApplication"  // ✅ Remove spaces
+rootProject.name = "Stego"  // ✅ Remove spaces
 
 // 🔹 Include the app module
 include(":app")
