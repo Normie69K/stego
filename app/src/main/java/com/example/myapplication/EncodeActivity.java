@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -33,6 +32,7 @@ public class EncodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_encode);
 
+        // Initialize UI Components
         baseImageView = findViewById(R.id.baseImagePreview);
         hiddenImageView = findViewById(R.id.hiddenImagePreview);
         encodedImageView = findViewById(R.id.encodedImagePreview);
@@ -43,6 +43,7 @@ public class EncodeActivity extends AppCompatActivity {
         psnrTextView = findViewById(R.id.psnrTextView);
         ssimTextView = findViewById(R.id.ssimTextView);
 
+        // Set Click Listeners
         selectBaseImageButton.setOnClickListener(v -> selectImage(PICK_IMAGE_REQUEST_1));
         selectHiddenImageButton.setOnClickListener(v -> selectImage(PICK_IMAGE_REQUEST_2));
         encodeButton.setOnClickListener(v -> encodeImage());
@@ -89,13 +90,21 @@ public class EncodeActivity extends AppCompatActivity {
             return;
         }
 
-        encodedBitmap = baseImage.copy(baseImage.getConfig(), true);
+        encodedBitmap = baseImage.copy(Bitmap.Config.ARGB_8888, true);
 
+        // Set a flag in the first pixel to indicate that the image is encoded
+        int firstPixel = encodedBitmap.getPixel(0, 0);
+        int newFirstPixel = Color.rgb((Color.red(firstPixel) & 0xFE) | 0x01, // Set LSB of red channel to 1
+                Color.green(firstPixel), Color.blue(firstPixel));
+        encodedBitmap.setPixel(0, 0, newFirstPixel);
+
+        // Encode hidden image into base image using LSB (Least Significant Bit)
         for (int x = 0; x < hiddenImage.getWidth(); x++) {
             for (int y = 0; y < hiddenImage.getHeight(); y++) {
-                int basePixel = baseImage.getPixel(x, y);
+                int basePixel = encodedBitmap.getPixel(x, y);
                 int hiddenPixel = hiddenImage.getPixel(x, y);
 
+                // Encode hidden image into base image using LSB
                 int newRed = (Color.red(basePixel) & 0xF8) | (Color.red(hiddenPixel) >> 5);
                 int newGreen = (Color.green(basePixel) & 0xFC) | (Color.green(hiddenPixel) >> 6);
                 int newBlue = (Color.blue(basePixel) & 0xF8) | (Color.blue(hiddenPixel) >> 5);
@@ -107,7 +116,44 @@ public class EncodeActivity extends AppCompatActivity {
 
         encodedImageView.setImageBitmap(encodedBitmap);
         encodedImageView.setVisibility(View.VISIBLE);
+
+        // Calculate and display PSNR
+        double psnr = calculatePSNR(baseImage, encodedBitmap);
+        psnrTextView.setText("PSNR: " + psnr);
+
         Toast.makeText(this, "Encoding successful!", Toast.LENGTH_SHORT).show();
+    }
+
+    private double calculatePSNR(Bitmap original, Bitmap encoded) {
+        int width = original.getWidth();
+        int height = original.getHeight();
+        long mse = 0;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int originalPixel = original.getPixel(x, y);
+                int encodedPixel = encoded.getPixel(x, y);
+
+                // Calculate squared difference for each channel (R, G, B)
+                int diffRed = Color.red(originalPixel) - Color.red(encodedPixel);
+                int diffGreen = Color.green(originalPixel) - Color.green(encodedPixel);
+                int diffBlue = Color.blue(originalPixel) - Color.blue(encodedPixel);
+
+                mse += (diffRed * diffRed) + (diffGreen * diffGreen) + (diffBlue * diffBlue);
+            }
+        }
+
+        // Calculate MSE (Mean Squared Error)
+        double mseValue = (double) mse / (width * height * 3); // Divide by 3 for R, G, B channels
+
+        // Avoid division by zero
+        if (mseValue == 0) {
+            return 100; // Perfect match, PSNR is infinite
+        }
+
+        // Calculate PSNR
+        double psnr = 10 * Math.log10((255 * 255) / mseValue);
+        return psnr;
     }
 
     private void saveEncodedImage() {
