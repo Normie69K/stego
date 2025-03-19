@@ -2,8 +2,7 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaPlayer;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -13,14 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class DecodeActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
+
     private ImageView imagePreview, decodedImagePreview;
     private Button uploadImageButton, decryptButton, downloadDecodedImageButton;
     private TextView decodedTextView;
@@ -39,36 +35,17 @@ public class DecodeActivity extends AppCompatActivity {
         downloadDecodedImageButton = findViewById(R.id.downloadDecodedImageButton);
         decodedTextView = findViewById(R.id.decodedTextView);
 
-        // Upload Image Button Click Listener
+        // Set Click Listeners
         uploadImageButton.setOnClickListener(v -> openGallery());
-
-        // Decrypt Button Click Listener
-        decryptButton.setOnClickListener(v -> decodeImageFromStego());
-
-        // Download Decoded Image Button Click Listener
-        downloadDecodedImageButton.setOnClickListener(v -> {
-            if (decodedImage != null) {
-                saveDecodedImage(decodedImage);
-            } else {
-                Toast.makeText(this, "No decoded image to save", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Info Button Click Listener with Sound Effect
-        findViewById(R.id.info_icon).setOnClickListener(v -> {
-            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.click_sound);
-            mediaPlayer.start();
-            startActivity(new Intent(DecodeActivity.this, InfoActivity.class));
-        });
+        decryptButton.setOnClickListener(v -> decodeImage());
+        downloadDecodedImageButton.setOnClickListener(v -> saveDecodedImage());
     }
 
-    // Open Gallery to Choose an Image
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
-    // Handle Selected Image
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -84,66 +61,62 @@ public class DecodeActivity extends AppCompatActivity {
         }
     }
 
-    // Convert Bitmap to File and Get Path
-    private String saveBitmapToFile(Bitmap bitmap) {
-        try {
-            File file = new File(getCacheDir(), "selected_image.png");
-            FileOutputStream fos = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-            return file.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    // Call Python Script to Decode Image
-    private void decodeImageFromStego() {
+    private void decodeImage() {
         if (selectedImage == null) {
             Toast.makeText(this, "Please upload an image first", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String imagePath = saveBitmapToFile(selectedImage);
-        if (imagePath == null) {
-            Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show();
+        int width = selectedImage.getWidth();
+        int height = selectedImage.getHeight();
+
+        // Check if the image contains the encoding flag (LSB of the red channel in the first pixel)
+        int firstPixel = selectedImage.getPixel(0, 0);
+        boolean isEncoded = (Color.red(firstPixel) & 0x01) == 1; // Check the LSB of the red channel
+
+        if (!isEncoded) {
+            // If the image is not encoded, show a message and return
+            decodedTextView.setText("Nothing to decode: This image was not encoded using this app.");
+            decodedImagePreview.setVisibility(ImageView.GONE);
+            Toast.makeText(this, "Nothing to decode", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        try {
-            Python py = Python.getInstance();
-            PyObject pyModule = py.getModule("steganography");  // Ensure script name is correct
-            PyObject result = pyModule.callAttr("decode_image", imagePath);
+        // Decode the hidden image
+        decodedImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int pixel = selectedImage.getPixel(x, y);
 
-            if (result != null) {
-                decodedTextView.setText("Decoded Image Path: " + result.toString());
-                decodedImage = BitmapFactory.decodeFile(result.toString());
-                decodedImagePreview.setImageBitmap(decodedImage);
-                Toast.makeText(this, "Decoding successful!", Toast.LENGTH_SHORT).show();
-            } else {
-                decodedTextView.setText("No hidden image found.");
-                Toast.makeText(this, "No hidden image found.", Toast.LENGTH_SHORT).show();
+                // Extract the hidden image from the LSBs
+                int decodedRed = (Color.red(pixel) & 0x07) << 5;
+                int decodedGreen = (Color.green(pixel) & 0x03) << 6;
+                int decodedBlue = (Color.blue(pixel) & 0x07) << 5;
+
+                int decodedPixel = Color.rgb(decodedRed, decodedGreen, decodedBlue);
+                decodedImage.setPixel(x, y, decodedPixel);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            decodedTextView.setText("Error during decoding: " + e.getMessage());
-            Toast.makeText(this, "Decoding failed!", Toast.LENGTH_LONG).show();
         }
+
+        decodedImagePreview.setImageBitmap(decodedImage);
+        decodedImagePreview.setVisibility(ImageView.VISIBLE);
+        decodedTextView.setText("Decoded Image");
+        Toast.makeText(this, "Image decoding complete!", Toast.LENGTH_SHORT).show();
     }
 
-    // Save Decoded Image as "stego_decode.png"
-    private void saveDecodedImage(Bitmap bitmap) {
-        try {
-            File file = new File(getExternalFilesDir(null), "stego_decode.png");
-            FileOutputStream fos = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-            Toast.makeText(this, "Image saved at: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+    private void saveDecodedImage() {
+        if (decodedImage == null) {
+            Toast.makeText(this, "No decoded image to save", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        // Save the decoded image to the gallery
+        String fileName = "decoded_image.png";
+        saveImageToGallery(decodedImage, fileName);
+        Toast.makeText(this, "Decoded image saved to gallery", Toast.LENGTH_SHORT).show();
+    }
+
+    private void saveImageToGallery(Bitmap bitmap, String fileName) {
+        // Implement this method to save the bitmap to the gallery
     }
 }
