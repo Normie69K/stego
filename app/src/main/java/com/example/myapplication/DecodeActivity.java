@@ -18,7 +18,7 @@ public class DecodeActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private ImageView imagePreview, decodedImagePreview;
-    private Button uploadImageButton, decryptButton, downloadDecodedImageButton;
+    private Button uploadImageButton, decryptButton;
     private TextView decodedTextView;
     private Bitmap selectedImage, decodedImage;
 
@@ -32,13 +32,11 @@ public class DecodeActivity extends AppCompatActivity {
         decodedImagePreview = findViewById(R.id.decodedImagePreview);
         uploadImageButton = findViewById(R.id.uploadImageButton);
         decryptButton = findViewById(R.id.decryptButton);
-        downloadDecodedImageButton = findViewById(R.id.downloadDecodedImageButton);
         decodedTextView = findViewById(R.id.decodedTextView);
 
         // Set Click Listeners
         uploadImageButton.setOnClickListener(v -> openGallery());
         decryptButton.setOnClickListener(v -> decodeImage());
-        downloadDecodedImageButton.setOnClickListener(v -> saveDecodedImage());
     }
 
     private void openGallery() {
@@ -72,15 +70,53 @@ public class DecodeActivity extends AppCompatActivity {
 
         // Check if the image contains the encoding flag (LSB of the red channel in the first pixel)
         int firstPixel = selectedImage.getPixel(0, 0);
-        boolean isEncoded = (Color.red(firstPixel) & 0x01) == 1; // Check the LSB of the red channel
+        boolean isTextEncoded = (Color.red(firstPixel) & 0x01) == 1; // Check the LSB of the red channel
 
-        if (!isEncoded) {
-            // If the image is not encoded, show a message and return
-            decodedTextView.setText("Nothing to decode: This image was not encoded using this app.");
-            decodedImagePreview.setVisibility(ImageView.GONE);
-            Toast.makeText(this, "Nothing to decode", Toast.LENGTH_SHORT).show();
-            return;
+        if (isTextEncoded) {
+            // Decode text
+            decodeText();
+        } else {
+            // Decode image
+            decodeHiddenImage();
         }
+    }
+
+    private void decodeText() {
+        int width = selectedImage.getWidth();
+        int height = selectedImage.getHeight();
+
+        // Decode text length from the first pixel (using LSBs)
+        int firstPixel = selectedImage.getPixel(0, 0);
+        int textLength = (Color.red(firstPixel) >> 1) & 0x7F; // Extract text length from the next 7 bits
+
+        if (textLength > 0) {
+            // Decode text
+            StringBuilder decodedText = new StringBuilder();
+            for (int i = 0; i < textLength; i++) {
+                int x = (i + 1) % width; // Start from the second pixel
+                int y = (i + 1) / width;
+                int pixel = selectedImage.getPixel(x, y);
+
+                // Decode the character from the LSBs of the pixel
+                char c = (char) (((Color.red(pixel) & 0x01) << 7) |
+                        ((Color.green(pixel) & 0x01) << 6) |
+                        ((Color.blue(pixel) & 0x01) << 5));
+                decodedText.append(c);
+            }
+
+            decodedTextView.setText("Decoded Text: " + decodedText.toString());
+            decodedImagePreview.setVisibility(ImageView.GONE);
+            Toast.makeText(this, "Text decoding complete!", Toast.LENGTH_SHORT).show();
+        } else {
+            decodedTextView.setText("No text found in the image.");
+            decodedImagePreview.setVisibility(ImageView.GONE);
+            Toast.makeText(this, "No text to decode", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void decodeHiddenImage() {
+        int width = selectedImage.getWidth();
+        int height = selectedImage.getHeight();
 
         // Decode the hidden image
         decodedImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -102,21 +138,5 @@ public class DecodeActivity extends AppCompatActivity {
         decodedImagePreview.setVisibility(ImageView.VISIBLE);
         decodedTextView.setText("Decoded Image");
         Toast.makeText(this, "Image decoding complete!", Toast.LENGTH_SHORT).show();
-    }
-
-    private void saveDecodedImage() {
-        if (decodedImage == null) {
-            Toast.makeText(this, "No decoded image to save", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Save the decoded image to the gallery
-        String fileName = "decoded_image.png";
-        saveImageToGallery(decodedImage, fileName);
-        Toast.makeText(this, "Decoded image saved to gallery", Toast.LENGTH_SHORT).show();
-    }
-
-    private void saveImageToGallery(Bitmap bitmap, String fileName) {
-        // Implement this method to save the bitmap to the gallery
     }
 }
