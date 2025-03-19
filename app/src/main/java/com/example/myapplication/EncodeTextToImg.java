@@ -7,7 +7,9 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,12 +17,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class EncodeTextToImg extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
-    private ImageView imageView, infoButton;
+
+    private ImageView imageView;
     private EditText editText;
     private Button selectImageButton, encodeButton, downloadButton;
     private TextView psnrTextView, ssimTextView;
@@ -40,15 +43,10 @@ public class EncodeTextToImg extends AppCompatActivity {
         downloadButton = findViewById(R.id.downloadButton);
         psnrTextView = findViewById(R.id.psnrTextView);
         ssimTextView = findViewById(R.id.ssimTextView);
-        infoButton = findViewById(R.id.info_icon);
 
         mediaPlayer = MediaPlayer.create(this, R.raw.click_sound);
 
-        infoButton.setOnClickListener(v -> {
-            playClickSound();
-            startActivity(new Intent(EncodeTextToImg.this, InfoActivity.class));
-        });
-
+        // Set Click Listeners
         selectImageButton.setOnClickListener(v -> {
             playClickSound();
             openGallery();
@@ -107,19 +105,32 @@ public class EncodeTextToImg extends AppCompatActivity {
         int width = encodedImage.getWidth();
         int height = encodedImage.getHeight();
 
-        for (int i = 0; i < textToEncode.length() && i < width * height; i++) {
+        // Encode text length into the first pixel (using LSBs)
+        int textLength = textToEncode.length();
+        int firstPixel = encodedImage.getPixel(0, 0);
+        int newFirstPixel = Color.rgb((Color.red(firstPixel) & 0xFE) | (textLength & 0x01),
+                Color.green(firstPixel), Color.blue(firstPixel));
+        encodedImage.setPixel(0, 0, newFirstPixel);
+
+        // Encode text into the image (using LSBs)
+        for (int i = 0; i < textToEncode.length(); i++) {
             char c = textToEncode.charAt(i);
-            int x = i % width;
-            int y = i / width;
+            int x = (i + 1) % width; // Start from the second pixel
+            int y = (i + 1) / width;
             int pixel = encodedImage.getPixel(x, y);
-            int newPixel = Color.argb(Color.alpha(pixel), c, Color.green(pixel), Color.blue(pixel));
+
+            // Encode the character into the LSBs of the pixel
+            int newPixel = Color.rgb((Color.red(pixel) & 0xFE) | ((c >> 7) & 0x01),
+                    (Color.green(pixel) & 0xFE) | ((c >> 6) & 0x01),
+                    (Color.blue(pixel) & 0xFE) | ((c >> 5) & 0x01));
             encodedImage.setPixel(x, y, newPixel);
         }
 
         imageView.setImageBitmap(encodedImage);
 
+        // Calculate and display PSNR and SSIM
         double psnr = calculatePSNR(selectedImage, encodedImage);
-        double ssim = 1.0; // Placeholder for SSIM calculation
+        double ssim = calculateSSIM(selectedImage, encodedImage);
 
         psnrTextView.setText("PSNR: " + psnr);
         ssimTextView.setText("SSIM: " + ssim);
@@ -128,23 +139,83 @@ public class EncodeTextToImg extends AppCompatActivity {
     }
 
     private double calculatePSNR(Bitmap original, Bitmap encoded) {
-        long mse = 0;
         int width = original.getWidth();
         int height = original.getHeight();
-        int totalPixels = width * height;
+        long mse = 0;
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int originalPixel = original.getPixel(x, y);
                 int encodedPixel = encoded.getPixel(x, y);
-                int diff = Color.red(originalPixel) - Color.red(encodedPixel);
-                mse += diff * diff;
+
+                // Calculate squared difference for each channel (R, G, B)
+                int diffRed = Color.red(originalPixel) - Color.red(encodedPixel);
+                int diffGreen = Color.green(originalPixel) - Color.green(encodedPixel);
+                int diffBlue = Color.blue(originalPixel) - Color.blue(encodedPixel);
+
+                mse += (diffRed * diffRed) + (diffGreen * diffGreen) + (diffBlue * diffBlue);
             }
         }
 
-        mse /= totalPixels;
-        if (mse == 0) return 100;
-        return 10 * Math.log10(255 * 255 / (double) mse);
+        // Calculate MSE (Mean Squared Error)
+        double mseValue = (double) mse / (width * height * 3); // Divide by 3 for R, G, B channels
+
+        // Avoid division by zero
+        if (mseValue == 0) {
+            return 100; // Perfect match, PSNR is infinite
+        }
+
+        // Calculate PSNR
+        double psnr = 10 * Math.log10((255 * 255) / mseValue);
+        return psnr;
+    }
+
+    private double calculateSSIM(Bitmap original, Bitmap encoded) {
+        int width = original.getWidth();
+        int height = original.getHeight();
+
+        double C1 = Math.pow(0.01 * 255, 2); // Constants for stability
+        double C2 = Math.pow(0.03 * 255, 2);
+
+        double meanOriginal = 0, meanEncoded = 0;
+        double varOriginal = 0, varEncoded = 0, covar = 0;
+
+        // Calculate means
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int originalPixel = original.getPixel(x, y);
+                int encodedPixel = encoded.getPixel(x, y);
+
+                meanOriginal += Color.red(originalPixel) + Color.green(originalPixel) + Color.blue(originalPixel);
+                meanEncoded += Color.red(encodedPixel) + Color.green(encodedPixel) + Color.blue(encodedPixel);
+            }
+        }
+        meanOriginal /= (width * height * 3);
+        meanEncoded /= (width * height * 3);
+
+        // Calculate variances and covariance
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int originalPixel = original.getPixel(x, y);
+                int encodedPixel = encoded.getPixel(x, y);
+
+                double originalLuminance = (Color.red(originalPixel) + Color.green(originalPixel) + Color.blue(originalPixel)) / 3.0;
+                double encodedLuminance = (Color.red(encodedPixel) + Color.green(encodedPixel) + Color.blue(encodedPixel)) / 3.0;
+
+                varOriginal += Math.pow(originalLuminance - meanOriginal, 2);
+                varEncoded += Math.pow(encodedLuminance - meanEncoded, 2);
+                covar += (originalLuminance - meanOriginal) * (encodedLuminance - meanEncoded);
+            }
+        }
+        varOriginal /= (width * height);
+        varEncoded /= (width * height);
+        covar /= (width * height);
+
+        // Calculate SSIM
+        double numerator = (2 * meanOriginal * meanEncoded + C1) * (2 * covar + C2);
+        double denominator = (Math.pow(meanOriginal, 2) + Math.pow(meanEncoded, 2) + C1) * (varOriginal + varEncoded + C2);
+
+        return numerator / denominator;
     }
 
     private void saveImageToGallery() {
@@ -156,7 +227,7 @@ public class EncodeTextToImg extends AppCompatActivity {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, "encoded_image.png");
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Stego");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Stego/");
 
         Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
         if (uri != null) {
