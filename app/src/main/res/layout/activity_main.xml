@@ -52,8 +52,8 @@
                 android:clickable="true"
                 android:contentDescription="Goku Image 1"
                 android:focusable="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_4" />
+                android:scaleType="centerInside"
+                android:src="@drawable/upload_text" />
 
             <TextView
                 android:id="@+id/textView"
@@ -79,8 +79,8 @@
                 android:clickable="true"
                 android:contentDescription="Goku Image 2"
                 android:focusable="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_5" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/upload_img" />
 
             <TextView
                 android:id="@+id/textView2"
@@ -107,8 +107,8 @@
                 android:clickable="true"
                 android:contentDescription="Goku Image 3"
                 android:focusable="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/goku_svg_free_svg_bundle_buffalo_goku_svg_free_6" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/decode" />
 
             <TextView
                 android:id="@+id/textView3"

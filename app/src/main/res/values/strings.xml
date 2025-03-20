@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Demo</string>
+    <string name="app_name">Stego</string>
     <string name="heading">Lorem Ipsum is simply dummy text of the printing and typesetting industry</string>
     <string name="info_button">info</string>
     <string name="Encode">Encode text in image</string>
