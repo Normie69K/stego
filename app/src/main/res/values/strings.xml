@@ -4,7 +4,7 @@
     <string name="info_button">info</string>
     <string name="Encode">Encode text in image</string>
     <string name="Encode_01">Encode image in image</string>
-    <string name="Decode">Decode</string>
+    <string name="Decode">Decode from image</string>
     <string name="instructions_heading">📌How to Use the Steganography Tool App</string>
 
         <string name="app_features">Features:\n✅ Convert text into images\n✅ Convert one image into another\n✅ Decode hidden messages from images</string>

@@ -27,14 +27,12 @@ public class DecodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decode);
 
-        // Initialize UI Components
         imagePreview = findViewById(R.id.imagePreview);
         decodedImagePreview = findViewById(R.id.decodedImagePreview);
         uploadImageButton = findViewById(R.id.uploadImageButton);
         decryptButton = findViewById(R.id.decryptButton);
         decodedTextView = findViewById(R.id.decodedTextView);
 
-        // Set Click Listeners
         uploadImageButton.setOnClickListener(v -> openGallery());
         decryptButton.setOnClickListener(v -> decodeImage());
     }
@@ -65,18 +63,12 @@ public class DecodeActivity extends AppCompatActivity {
             return;
         }
 
-        int width = selectedImage.getWidth();
-        int height = selectedImage.getHeight();
-
-        // Check if the image contains the encoding flag (LSB of the red channel in the first pixel)
         int firstPixel = selectedImage.getPixel(0, 0);
-        boolean isTextEncoded = (Color.red(firstPixel) & 0x01) == 1; // Check the LSB of the red channel
+        boolean isTextEncoded = (Color.red(firstPixel) & 0x01) == 1;
 
         if (isTextEncoded) {
-            // Decode text
             decodeText();
         } else {
-            // Decode image
             decodeHiddenImage();
         }
     }
@@ -85,58 +77,54 @@ public class DecodeActivity extends AppCompatActivity {
         int width = selectedImage.getWidth();
         int height = selectedImage.getHeight();
 
-        // Decode text length from the first pixel (using LSBs)
-        int firstPixel = selectedImage.getPixel(0, 0);
-        int textLength = (Color.red(firstPixel) >> 1) & 0x7F; // Extract text length from the next 7 bits
+        // Extract text length from first pixel (bits 1-7 of red channel)
+        int textLength = (Color.red(selectedImage.getPixel(0, 0)) >> 1);
 
-        if (textLength > 0) {
-            // Decode text
-            StringBuilder decodedText = new StringBuilder();
-            for (int i = 0; i < textLength; i++) {
-                int x = (i + 1) % width; // Start from the second pixel
-                int y = (i + 1) / width;
-                int pixel = selectedImage.getPixel(x, y);
-
-                // Decode the character from the LSBs of the pixel
-                char c = (char) (((Color.red(pixel) & 0x01) << 7) |
-                        ((Color.green(pixel) & 0x01) << 6) |
-                        ((Color.blue(pixel) & 0x01) << 5));
-                decodedText.append(c);
-            }
-
-            decodedTextView.setText("Decoded Text: " + decodedText.toString());
-            decodedImagePreview.setVisibility(ImageView.GONE);
-            Toast.makeText(this, "Text decoding complete!", Toast.LENGTH_SHORT).show();
-        } else {
-            decodedTextView.setText("No text found in the image.");
-            decodedImagePreview.setVisibility(ImageView.GONE);
-            Toast.makeText(this, "No text to decode", Toast.LENGTH_SHORT).show();
+        if (textLength == 0) {
+            decodedTextView.setText("No text found");
+            return;
         }
+
+        StringBuilder decodedText = new StringBuilder();
+        for (int i = 0; i < textLength; i++) {
+            char c = 0;
+            for (int bitPos = 7; bitPos >= 0; bitPos -= 3) {
+                int pixelIndex = i * 3 + (7 - bitPos) / 3 + 1;
+                int x = pixelIndex % width;
+                int y = pixelIndex / width;
+                if (x >= width || y >= height) break;
+
+                int pixel = selectedImage.getPixel(x, y);
+                c |= ((Color.red(pixel) & 0x01) << (bitPos - 0));
+                c |= ((Color.green(pixel) & 0x01) << (bitPos - 1));
+                c |= ((Color.blue(pixel) & 0x01) << (bitPos - 2));
+            }
+            decodedText.append(c);
+        }
+
+        decodedTextView.setText("Decoded Text: " + decodedText.toString());
+        decodedImagePreview.setVisibility(ImageView.GONE);
+        Toast.makeText(this, "Text decoded!", Toast.LENGTH_SHORT).show();
     }
 
     private void decodeHiddenImage() {
         int width = selectedImage.getWidth();
         int height = selectedImage.getHeight();
 
-        // Decode the hidden image
         decodedImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int pixel = selectedImage.getPixel(x, y);
-
-                // Extract the hidden image from the LSBs
                 int decodedRed = (Color.red(pixel) & 0x07) << 5;
                 int decodedGreen = (Color.green(pixel) & 0x03) << 6;
                 int decodedBlue = (Color.blue(pixel) & 0x07) << 5;
-
-                int decodedPixel = Color.rgb(decodedRed, decodedGreen, decodedBlue);
-                decodedImage.setPixel(x, y, decodedPixel);
+                decodedImage.setPixel(x, y, Color.rgb(decodedRed, decodedGreen, decodedBlue));
             }
         }
 
         decodedImagePreview.setImageBitmap(decodedImage);
         decodedImagePreview.setVisibility(ImageView.VISIBLE);
         decodedTextView.setText("Decoded Image");
-        Toast.makeText(this, "Image decoding complete!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Image decoded!", Toast.LENGTH_SHORT).show();
     }
 }
