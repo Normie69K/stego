@@ -3,4 +3,32 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primaryColor">#2E0521</color> <!-- You can change this to any color you like -->
+    <!-- Light Theme -->
+    <color name="colorPrimary">#7363F0</color>
+    <color name="backgroundTheme">#F3F4F6</color>
+    <color name="textColorPrimary">#333333</color>
+
+    <!-- Dark Theme -->
+    <color name="colorPrimaryDark">#5A4DCC</color>
+    <color name="backgroundThemeDark">#121212</color>
+    <color name="textColorPrimaryDark">#FFFFFF</color>
+    <color name="errorColor">#D32F2F</color>
+    <color name="textColorSecondary">#666666</color>
+
+    <color name="switch_thumb_light">#FFFFFF</color>
+    <color name="switch_track_light">#BDBDBD</color>
+
+
+
+        <color name="backgroundThemeLight">#F3F4F6</color>
+        <color name="textColorPrimaryLight">#333333</color>
+
+        <!-- Dark Theme (Black Base) -->
+
+    <!-- Switch Colors -->
+    <color name="switch_thumb">#FFFFFF</color>
+    <color name="switch_track">#BDBDBD</color>
+    <color name="switch_thumb_dark">#212121</color>
+    <color name="switch_track_dark">#757575</color>
+
 </resources>

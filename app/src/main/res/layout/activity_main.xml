@@ -105,7 +105,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/decode" />
+                android:src="@drawable/decode2" />
 
             <TextView
                 android:id="@+id/textView3"
@@ -117,7 +117,7 @@
                 android:focusable="true"
                 android:fontFamily="@font/average_sans"
                 android:gravity="center"
-                android:text="@string/Decode"
+                android:text="@string/Decode_2"
                 android:textColor="#333333"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -132,7 +132,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/decode2" />
+                android:src="@drawable/decode" />
 
             <TextView
                 android:id="@+id/textView4"
