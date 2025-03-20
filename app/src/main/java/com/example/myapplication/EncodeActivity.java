@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,7 +23,6 @@ public class EncodeActivity extends AppCompatActivity {
 
     private ImageView baseImageView, hiddenImageView, encodedImageView;
     private Button selectBaseImageButton, selectHiddenImageButton, encodeButton, downloadButton;
-    private TextView psnrTextView, ssimTextView;
     private Bitmap baseImage, hiddenImage, encodedBitmap;
 
     @Override
@@ -32,6 +30,7 @@ public class EncodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_encode);
 
+        // Initialize UI components
         baseImageView = findViewById(R.id.baseImagePreview);
         hiddenImageView = findViewById(R.id.hiddenImagePreview);
         encodedImageView = findViewById(R.id.encodedImagePreview);
@@ -39,9 +38,8 @@ public class EncodeActivity extends AppCompatActivity {
         selectHiddenImageButton = findViewById(R.id.selectHiddenImageButton);
         encodeButton = findViewById(R.id.encodeButton);
         downloadButton = findViewById(R.id.downloadButton);
-        psnrTextView = findViewById(R.id.psnrTextView);
-        ssimTextView = findViewById(R.id.ssimTextView);
 
+        // Set click listeners
         selectBaseImageButton.setOnClickListener(v -> selectImage(PICK_IMAGE_REQUEST_1));
         selectHiddenImageButton.setOnClickListener(v -> selectImage(PICK_IMAGE_REQUEST_2));
         encodeButton.setOnClickListener(v -> encodeImage());
@@ -59,7 +57,7 @@ public class EncodeActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK && data != null) {
             Uri imageUri = data.getData();
             try {
-                Bitmap selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                Bitmap selectedBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                 if (requestCode == PICK_IMAGE_REQUEST_1) {
                     baseImage = selectedBitmap;
                     baseImageView.setImageBitmap(baseImage);
@@ -68,106 +66,97 @@ public class EncodeActivity extends AppCompatActivity {
                     hiddenImageView.setImageBitmap(hiddenImage);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                showError("Failed to load image");
             }
         }
     }
 
     private void encodeImage() {
         if (baseImage == null || hiddenImage == null) {
-            Toast.makeText(this, "Please select both images first", Toast.LENGTH_SHORT).show();
+            showError("Please select both images first");
             return;
         }
 
-        int baseWidth = baseImage.getWidth();
-        int baseHeight = baseImage.getHeight();
-        int hiddenWidth = hiddenImage.getWidth();
-        int hiddenHeight = hiddenImage.getHeight();
+        try {
+            // Get dimensions
+            int baseWidth = baseImage.getWidth();
+            int baseHeight = baseImage.getHeight();
+            int hiddenWidth = hiddenImage.getWidth();
+            int hiddenHeight = hiddenImage.getHeight();
 
-        if (hiddenWidth > baseWidth || hiddenHeight > baseHeight) {
-            Toast.makeText(this, "Hidden image must be smaller than base image", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        encodedBitmap = baseImage.copy(Bitmap.Config.ARGB_8888, true);
-
-        // Store metadata in the first 3 pixels
-        // Pixel 0: Flag (LSB=1) to indicate encoded image
-        int firstPixel = encodedBitmap.getPixel(0, 0);
-        int newFirstPixel = Color.rgb((Color.red(firstPixel) & 0xFE) | 0x01, Color.green(firstPixel), Color.blue(firstPixel));
-        encodedBitmap.setPixel(0, 0, newFirstPixel);
-
-        // Pixel 1: Hidden image width (split into red and green channels)
-        int widthPixel = Color.rgb((hiddenWidth >> 8) & 0xFF, hiddenWidth & 0xFF, 0);
-        encodedBitmap.setPixel(1, 0, widthPixel);
-
-        // Pixel 2: Hidden image height (split into red and green channels)
-        int heightPixel = Color.rgb((hiddenHeight >> 8) & 0xFF, hiddenHeight & 0xFF, 0);
-        encodedBitmap.setPixel(2, 0, heightPixel);
-
-        // Encode hidden image into LSBs of base image
-        for (int x = 0; x < hiddenWidth; x++) {
-            for (int y = 0; y < hiddenHeight; y++) {
-                int basePixel = encodedBitmap.getPixel(x, y);
-                int hiddenPixel = hiddenImage.getPixel(x, y);
-
-                // Encode 3 bits of hidden red, 2 bits of hidden green, 3 bits of hidden blue
-                int newRed = (Color.red(basePixel) & 0xF8) | (Color.red(hiddenPixel) >> 5);
-                int newGreen = (Color.green(basePixel) & 0xFC) | (Color.green(hiddenPixel) >> 6);
-                int newBlue = (Color.blue(basePixel) & 0xF8) | (Color.blue(hiddenPixel) >> 5);
-
-                encodedBitmap.setPixel(x, y, Color.rgb(newRed, newGreen, newBlue));
+            // Validate sizes
+            if (hiddenWidth > baseWidth || hiddenHeight > baseHeight) {
+                showError("Hidden image must be smaller than base image");
+                return;
             }
-        }
 
-        encodedImageView.setImageBitmap(encodedBitmap);
-        psnrTextView.setText("PSNR: " + calculatePSNR(baseImage, encodedBitmap));
-        Toast.makeText(this, "Encoding successful!", Toast.LENGTH_SHORT).show();
-    }
+            // Create writable copy
+            encodedBitmap = baseImage.copy(Bitmap.Config.ARGB_8888, true);
 
-    private double calculatePSNR(Bitmap original, Bitmap encoded) {
-        int width = original.getWidth();
-        int height = original.getHeight();
-        long mse = 0;
+            // Store metadata
+            encodedBitmap.setPixel(0, 0, Color.rgb(1, 0, 0)); // Version marker
+            encodedBitmap.setPixel(1, 0, Color.rgb(
+                    (hiddenWidth >> 8) & 0xFF,
+                    hiddenWidth & 0xFF,
+                    0
+            ));
+            encodedBitmap.setPixel(2, 0, Color.rgb(
+                    (hiddenHeight >> 8) & 0xFF,
+                    hiddenHeight & 0xFF,
+                    0
+            ));
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int originalPixel = original.getPixel(x, y);
-                int encodedPixel = encoded.getPixel(x, y);
+            // Encode hidden image data
+            for (int x = 0; x < hiddenWidth; x++) {
+                for (int y = 0; y < hiddenHeight; y++) {
+                    int basePixel = encodedBitmap.getPixel(x, y);
+                    int hiddenPixel = hiddenImage.getPixel(x, y);
 
-                int diffRed = Color.red(originalPixel) - Color.red(encodedPixel);
-                int diffGreen = Color.green(originalPixel) - Color.green(encodedPixel);
-                int diffBlue = Color.blue(originalPixel) - Color.blue(encodedPixel);
+                    // Embed 3-2-3 bits
+                    int newRed = (Color.red(basePixel) & 0xF8) | (Color.red(hiddenPixel) >> 5);
+                    int newGreen = (Color.green(basePixel) & 0xFC) | (Color.green(hiddenPixel) >> 6);
+                    int newBlue = (Color.blue(basePixel) & 0xF8) | (Color.blue(hiddenPixel) >> 5);
 
-                mse += (diffRed * diffRed) + (diffGreen * diffGreen) + (diffBlue * diffBlue);
+                    encodedBitmap.setPixel(x, y, Color.rgb(newRed, newGreen, newBlue));
+                }
             }
-        }
 
-        double mseValue = (double) mse / (width * height * 3);
-        return (mseValue == 0) ? 100 : 10 * Math.log10((255 * 255) / mseValue);
+            encodedImageView.setImageBitmap(encodedBitmap);
+            showToast("Encoding successful!");
+        } catch (Exception e) {
+            showError("Encoding failed: " + e.getMessage());
+        }
     }
 
     private void saveEncodedImage() {
         if (encodedBitmap == null) {
-            Toast.makeText(this, "No encoded image to save", Toast.LENGTH_SHORT).show();
+            showError("No image to save");
             return;
         }
 
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, "encoded_image.png");
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Stego/");
+        try {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, "encoded_image.png");
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Stego/");
 
-        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        if (uri != null) {
-            try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
-                encodedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                Toast.makeText(this, "Image saved to Pictures/Stego/", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+            Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
+                    encodedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                    showToast("Image saved successfully!");
+                }
             }
+        } catch (Exception e) {
+            showError("Save failed: " + e.getMessage());
         }
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showError(String error) {
+        Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG).show();
     }
 }

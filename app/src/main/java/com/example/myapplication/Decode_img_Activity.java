@@ -18,18 +18,19 @@ public class Decode_img_Activity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private ImageView imagePreview, decodedImagePreview;
-    private Bitmap selectedImage;
+    private Button uploadImageButton, decryptButton;
     private TextView decodedTextView;
+    private Bitmap selectedImage, decodedImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_decode);
+        setContentView(R.layout.activity_decode_text);
 
         imagePreview = findViewById(R.id.imagePreview);
         decodedImagePreview = findViewById(R.id.decodedImagePreview);
-        Button uploadImageButton = findViewById(R.id.uploadImageButton);
-        Button decryptButton = findViewById(R.id.decryptButton);
+        uploadImageButton = findViewById(R.id.uploadImageButton);
+        decryptButton = findViewById(R.id.decryptButton);
         decodedTextView = findViewById(R.id.decodedTextView);
 
         uploadImageButton.setOnClickListener(v -> openGallery());
@@ -47,66 +48,83 @@ public class Decode_img_Activity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             Uri imageUri = data.getData();
             try {
-                selectedImage = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                selectedImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
                 imagePreview.setImageBitmap(selectedImage);
             } catch (IOException e) {
-                showError("Failed to load image");
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void decodeImage() {
         if (selectedImage == null) {
-            showError("Upload an image first");
+            Toast.makeText(this, "Please upload an image first", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        try {
-            int firstPixel = selectedImage.getPixel(0, 0);
-            if ((Color.red(firstPixel) & 0x01) != 1) {
-                showError("No hidden image");
-                return;
-            }
+        int firstPixel = selectedImage.getPixel(0, 0);
+        boolean isTextEncoded = (Color.red(firstPixel) & 0x01) == 1;
 
-            int widthPixel = selectedImage.getPixel(1, 0);
-            int hiddenWidth = ((Color.red(widthPixel) & 0xFF) << 8) | (Color.green(widthPixel) & 0xFF);
-
-            int heightPixel = selectedImage.getPixel(2, 0);
-            int hiddenHeight = ((Color.red(heightPixel) & 0xFF) << 8) | (Color.green(heightPixel) & 0xFF);
-
-            if (hiddenWidth <= 0 || hiddenHeight <= 0) {
-                showError("Invalid hidden image");
-                return;
-            }
-
-            Bitmap decodedImage = Bitmap.createBitmap(hiddenWidth, hiddenHeight, Bitmap.Config.ARGB_8888);
-            for (int x = 0; x < hiddenWidth; x++) {
-                for (int y = 0; y < hiddenHeight; y++) {
-                    if (x >= selectedImage.getWidth() || y >= selectedImage.getHeight()) break;
-
-                    int encodedPixel = selectedImage.getPixel(x, y);
-                    int decodedRed = (Color.red(encodedPixel) & 0x07) << 5;
-                    int decodedGreen = (Color.green(encodedPixel) & 0x03) << 6;
-                    int decodedBlue = (Color.blue(encodedPixel) & 0x07) << 5;
-
-                    decodedImage.setPixel(x, y, Color.rgb(decodedRed, decodedGreen, decodedBlue));
-                }
-            }
-
-            decodedImagePreview.setImageBitmap(decodedImage);
-            decodedTextView.setText("Decoded Image");
-            showToast("Decoding successful!");
-        } catch (Exception e) {
-            showError("Decoding failed: " + e.getMessage());
+        if (isTextEncoded) {
+            decodeText();
+        } else {
+            decodeHiddenImage();
         }
     }
 
+    private void decodeText() {
+        int width = selectedImage.getWidth();
+        int height = selectedImage.getHeight();
 
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        // Extract text length from first pixel (bits 1-7 of red channel)
+        int textLength = (Color.red(selectedImage.getPixel(0, 0)) >> 1);
+
+        if (textLength == 0) {
+            decodedTextView.setText("No text found");
+            return;
+        }
+
+        StringBuilder decodedText = new StringBuilder();
+        for (int i = 0; i < textLength; i++) {
+            char c = 0;
+            for (int bitPos = 7; bitPos >= 0; bitPos -= 3) {
+                int pixelIndex = i * 3 + (7 - bitPos) / 3 + 1;
+                int x = pixelIndex % width;
+                int y = pixelIndex / width;
+                if (x >= width || y >= height) break;
+
+                int pixel = selectedImage.getPixel(x, y);
+                c |= ((Color.red(pixel) & 0x01) << (bitPos - 0));
+                c |= ((Color.green(pixel) & 0x01) << (bitPos - 1));
+                c |= ((Color.blue(pixel) & 0x01) << (bitPos - 2));
+            }
+            decodedText.append(c);
+        }
+
+        decodedTextView.setText("Decoded Text: " + decodedText.toString());
+        decodedImagePreview.setVisibility(ImageView.GONE);
+        Toast.makeText(this, "Text decoded!", Toast.LENGTH_SHORT).show();
     }
 
-    private void showError(String error) {
-        Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG).show();
+    private void decodeHiddenImage() {
+        int width = selectedImage.getWidth();
+        int height = selectedImage.getHeight();
+
+        decodedImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int pixel = selectedImage.getPixel(x, y);
+                int decodedRed = (Color.red(pixel) & 0x07) << 5;
+                int decodedGreen = (Color.green(pixel) & 0x03) << 6;
+                int decodedBlue = (Color.blue(pixel) & 0x07) << 5;
+                decodedImage.setPixel(x, y, Color.rgb(decodedRed, decodedGreen, decodedBlue));
+            }
+        }
+
+        decodedImagePreview.setImageBitmap(decodedImage);
+        decodedImagePreview.setVisibility(ImageView.VISIBLE);
+        decodedTextView.setText("Decoded Image");
+        Toast.makeText(this, "Image decoded!", Toast.LENGTH_SHORT).show();
     }
 }
