@@ -1,10 +1,12 @@
 package com.example.myapplication;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -13,12 +15,13 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class Decode_text_activity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private ImageView imagePreview, decodedImagePreview;
-    private Button uploadImageButton, decryptButton;
+    private Button uploadImageButton, decryptButton, downloadButton;
     private TextView decodedTextView;
     private Bitmap selectedImage, decodedImage;
 
@@ -27,14 +30,18 @@ public class Decode_text_activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decode);
 
+        // Initialize views
         imagePreview = findViewById(R.id.imagePreview);
         decodedImagePreview = findViewById(R.id.decodedImagePreview);
         uploadImageButton = findViewById(R.id.uploadImageButton);
         decryptButton = findViewById(R.id.decryptButton);
+        downloadButton = findViewById(R.id.downloadButton);
         decodedTextView = findViewById(R.id.decodedTextView);
 
+        // Set click listeners
         uploadImageButton.setOnClickListener(v -> openGallery());
         decryptButton.setOnClickListener(v -> decodeImage());
+        downloadButton.setOnClickListener(v -> saveDecodedImage());
     }
 
     private void openGallery() {
@@ -104,6 +111,7 @@ public class Decode_text_activity extends AppCompatActivity {
 
         decodedTextView.setText("Decoded Text: " + decodedText.toString());
         decodedImagePreview.setVisibility(ImageView.GONE);
+        downloadButton.setVisibility(ImageView.GONE); // Hide download button for text
         Toast.makeText(this, "Text decoded!", Toast.LENGTH_SHORT).show();
     }
 
@@ -125,6 +133,31 @@ public class Decode_text_activity extends AppCompatActivity {
         decodedImagePreview.setImageBitmap(decodedImage);
         decodedImagePreview.setVisibility(ImageView.VISIBLE);
         decodedTextView.setText("Decoded Image");
+        downloadButton.setVisibility(ImageView.VISIBLE); // Show download button for image
         Toast.makeText(this, "Image decoded!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void saveDecodedImage() {
+        if (decodedImage == null) {
+            Toast.makeText(this, "No decoded image to save", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Save the decoded image to the gallery
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, "decoded_image_" + System.currentTimeMillis() + ".png");
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Stego/");
+
+        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        if (uri != null) {
+            try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
+                decodedImage.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                Toast.makeText(this, "Image saved to gallery", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

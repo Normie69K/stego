@@ -108,25 +108,7 @@
                 android:textColor="@android:color/white" />
 
             <!-- PSNR & SSIM Values -->
-            <TextView
-                android:id="@+id/psnrTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="10dp"
-                android:text="PSNR: N/A"
-                android:textColor="@android:color/black"
-                android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/ssimTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="5dp"
-                android:text="SSIM: N/A"
-                android:textColor="@android:color/black"
-                android:textSize="18sp" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
