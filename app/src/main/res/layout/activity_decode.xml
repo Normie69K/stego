@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#F3F4F6"
     android:orientation="vertical"
-    tools:context=".DecodeActivity">
+    tools:context=".Decode_img_Activity">
 
     <RelativeLayout
         android:layout_width="match_parent"

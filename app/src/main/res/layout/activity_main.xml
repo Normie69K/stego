@@ -50,7 +50,6 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/circle_background"
                 android:clickable="true"
-                android:contentDescription="Goku Image 1"
                 android:focusable="true"
                 android:scaleType="centerInside"
                 android:src="@drawable/upload_text" />
@@ -77,7 +76,6 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/circle_background"
                 android:clickable="true"
-                android:contentDescription="Goku Image 2"
                 android:focusable="true"
                 android:scaleType="fitCenter"
                 android:src="@drawable/upload_img" />
@@ -105,7 +103,6 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/circle_background"
                 android:clickable="true"
-                android:contentDescription="Goku Image 3"
                 android:focusable="true"
                 android:scaleType="fitCenter"
                 android:src="@drawable/decode" />
@@ -121,6 +118,33 @@
                 android:fontFamily="@font/average_sans"
                 android:gravity="center"
                 android:text="@string/Decode"
+                android:textColor="#333333"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="309dp"
+                android:layout_height="131dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/circle_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/decode2" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/average_sans"
+                android:gravity="center"
+                android:text="@string/Decode_2"
                 android:textColor="#333333"
                 android:textSize="20sp"
                 android:textStyle="bold" />

@@ -32,7 +32,6 @@ public class EncodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_encode);
 
-        // Initialize UI Components
         baseImageView = findViewById(R.id.baseImagePreview);
         hiddenImageView = findViewById(R.id.hiddenImagePreview);
         encodedImageView = findViewById(R.id.encodedImagePreview);
@@ -43,7 +42,6 @@ public class EncodeActivity extends AppCompatActivity {
         psnrTextView = findViewById(R.id.psnrTextView);
         ssimTextView = findViewById(R.id.ssimTextView);
 
-        // Set Click Listeners
         selectBaseImageButton.setOnClickListener(v -> selectImage(PICK_IMAGE_REQUEST_1));
         selectHiddenImageButton.setOnClickListener(v -> selectImage(PICK_IMAGE_REQUEST_2));
         encodeButton.setOnClickListener(v -> encodeImage());
@@ -82,45 +80,49 @@ public class EncodeActivity extends AppCompatActivity {
             return;
         }
 
-        int width = baseImage.getWidth();
-        int height = baseImage.getHeight();
+        int baseWidth = baseImage.getWidth();
+        int baseHeight = baseImage.getHeight();
+        int hiddenWidth = hiddenImage.getWidth();
+        int hiddenHeight = hiddenImage.getHeight();
 
-        if (hiddenImage.getWidth() > width || hiddenImage.getHeight() > height) {
+        if (hiddenWidth > baseWidth || hiddenHeight > baseHeight) {
             Toast.makeText(this, "Hidden image must be smaller than base image", Toast.LENGTH_SHORT).show();
             return;
         }
 
         encodedBitmap = baseImage.copy(Bitmap.Config.ARGB_8888, true);
 
-        // Set a flag in the first pixel to indicate that the image is encoded
+        // Store metadata in the first 3 pixels
+        // Pixel 0: Flag (LSB=1) to indicate encoded image
         int firstPixel = encodedBitmap.getPixel(0, 0);
-        int newFirstPixel = Color.rgb((Color.red(firstPixel) & 0xFE) | 0x01, // Set LSB of red channel to 1
-                Color.green(firstPixel), Color.blue(firstPixel));
+        int newFirstPixel = Color.rgb((Color.red(firstPixel) & 0xFE) | 0x01, Color.green(firstPixel), Color.blue(firstPixel));
         encodedBitmap.setPixel(0, 0, newFirstPixel);
 
-        // Encode hidden image into base image using LSB (Least Significant Bit)
-        for (int x = 0; x < hiddenImage.getWidth(); x++) {
-            for (int y = 0; y < hiddenImage.getHeight(); y++) {
+        // Pixel 1: Hidden image width (split into red and green channels)
+        int widthPixel = Color.rgb((hiddenWidth >> 8) & 0xFF, hiddenWidth & 0xFF, 0);
+        encodedBitmap.setPixel(1, 0, widthPixel);
+
+        // Pixel 2: Hidden image height (split into red and green channels)
+        int heightPixel = Color.rgb((hiddenHeight >> 8) & 0xFF, hiddenHeight & 0xFF, 0);
+        encodedBitmap.setPixel(2, 0, heightPixel);
+
+        // Encode hidden image into LSBs of base image
+        for (int x = 0; x < hiddenWidth; x++) {
+            for (int y = 0; y < hiddenHeight; y++) {
                 int basePixel = encodedBitmap.getPixel(x, y);
                 int hiddenPixel = hiddenImage.getPixel(x, y);
 
-                // Encode hidden image into base image using LSB
+                // Encode 3 bits of hidden red, 2 bits of hidden green, 3 bits of hidden blue
                 int newRed = (Color.red(basePixel) & 0xF8) | (Color.red(hiddenPixel) >> 5);
                 int newGreen = (Color.green(basePixel) & 0xFC) | (Color.green(hiddenPixel) >> 6);
                 int newBlue = (Color.blue(basePixel) & 0xF8) | (Color.blue(hiddenPixel) >> 5);
 
-                int newPixel = Color.rgb(newRed, newGreen, newBlue);
-                encodedBitmap.setPixel(x, y, newPixel);
+                encodedBitmap.setPixel(x, y, Color.rgb(newRed, newGreen, newBlue));
             }
         }
 
         encodedImageView.setImageBitmap(encodedBitmap);
-        encodedImageView.setVisibility(View.VISIBLE);
-
-        // Calculate and display PSNR
-        double psnr = calculatePSNR(baseImage, encodedBitmap);
-        psnrTextView.setText("PSNR: " + psnr);
-
+        psnrTextView.setText("PSNR: " + calculatePSNR(baseImage, encodedBitmap));
         Toast.makeText(this, "Encoding successful!", Toast.LENGTH_SHORT).show();
     }
 
@@ -134,7 +136,6 @@ public class EncodeActivity extends AppCompatActivity {
                 int originalPixel = original.getPixel(x, y);
                 int encodedPixel = encoded.getPixel(x, y);
 
-                // Calculate squared difference for each channel (R, G, B)
                 int diffRed = Color.red(originalPixel) - Color.red(encodedPixel);
                 int diffGreen = Color.green(originalPixel) - Color.green(encodedPixel);
                 int diffBlue = Color.blue(originalPixel) - Color.blue(encodedPixel);
@@ -143,17 +144,8 @@ public class EncodeActivity extends AppCompatActivity {
             }
         }
 
-        // Calculate MSE (Mean Squared Error)
-        double mseValue = (double) mse / (width * height * 3); // Divide by 3 for R, G, B channels
-
-        // Avoid division by zero
-        if (mseValue == 0) {
-            return 100; // Perfect match, PSNR is infinite
-        }
-
-        // Calculate PSNR
-        double psnr = 10 * Math.log10((255 * 255) / mseValue);
-        return psnr;
+        double mseValue = (double) mse / (width * height * 3);
+        return (mseValue == 0) ? 100 : 10 * Math.log10((255 * 255) / mseValue);
     }
 
     private void saveEncodedImage() {
