@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom TextView Style -->
+    <style name="CustomTextView">
+        <item name="android:fontFamily">@font/average_sans</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <!-- Custom Button Style -->
+    <style name="CustomButton">
+        <item name="android:fontFamily">@font/average_sans</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+    </style>
+
+    <!-- Heading Text -->
+    <style name="HeadingText">
+        <item name="android:textColor">?attr/textColorPrimary</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">@font/average_sans</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Subheading Text -->
+    <style name="SubheadingText">
+        <item name="android:textColor">?attr/textColorPrimary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/average_sans</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Body Text -->
+    <style name="BodyText">
+        <item name="android:textColor">?attr/textColorSecondary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/average_sans</item>
+        <item name="android:lineSpacingMultiplier">1.2</item>
+    </style>
+
+    <!-- Disclaimer Text -->
+    <style name="DisclaimerText">
+        <item name="android:textColor">@color/errorColor</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/average_sans</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Developer Name Text -->
+    <style name="DeveloperNameText">
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">@font/average_sans</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Switch Style -->
+    <style name="SwitchStyle">
+        <item name="android:textColor">?attr/textColorPrimary</item>
+        <item name="android:fontFamily">@font/average_sans</item>
+    </style>
+</resources>
