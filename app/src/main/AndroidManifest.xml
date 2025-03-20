@@ -28,21 +28,25 @@
         <!-- Text Encoding Activity -->
         <activity
             android:name=".EncodeTextToImg"
+            android:theme="@style/Theme.MyApplication"
             android:exported="false" />
 
         <!-- Image Encoding Activity -->
         <activity
             android:name=".EncodeActivity"
+            android:theme="@style/Theme.MyApplication"
             android:exported="false" />
 
         <!-- Image Decoding Activity -->
         <activity
             android:name=".Decode_img_Activity"
+            android:theme="@style/Theme.MyApplication"
             android:exported="false" />
 
         <!-- Text Decoding Activity -->
         <activity
             android:name=".Decode_text_activity"
+            android:theme="@style/Theme.MyApplication"
             android:exported="false"
             android:label="Text Decoder"
             android:parentActivityName=".MainActivity" />
@@ -50,6 +54,7 @@
         <!-- Info Activity -->
         <activity
             android:name=".InfoActivity"
+            android:theme="@style/Theme.MyApplication"
             android:exported="false" />
 
     </application>
