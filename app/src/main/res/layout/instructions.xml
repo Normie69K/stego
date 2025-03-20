@@ -5,122 +5,190 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    android:background="#F3F4F6">
+    android:background="#FFFFFF">
 
-    <!-- Toolbar -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#7363F0"
-        android:padding="10dp">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:fontFamily="@font/average_sans"
-            android:text="About the App"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"/>
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar" />
     </RelativeLayout>
 
     <!-- Main Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp">
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center">
+            android:paddingBottom="24dp">
 
-            <!-- App Title -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Steganography Tool"
-                android:textSize="22sp"
-                android:textColor="#333333"
-                android:fontFamily="@font/average_sans"
-                android:textStyle="bold"
-                android:paddingBottom="10dp"/>
-
-            <!-- What is Steganography -->
-            <TextView
+            <!-- App Title Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="🔍 What is Steganography?\nSteganography is a technique used to hide secret data inside digital files like images, videos, or audio without altering the visible content significantly."
-                android:textSize="18sp"
-                android:textColor="#444444"
-                android:fontFamily="@font/average_sans"
-                android:paddingBottom="15dp"/>
+                app:cardElevation="2dp"
+                android:background="@drawable/circle_background"
+                app:cardCornerRadius="8dp"
+                android:layout_marginBottom="16dp">
 
-            <!-- Features -->
-            <TextView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/app_name"
+                        android:textAlignment="center"
+                        android:textSize="28sp"
+                        style="@style/HeadingText"
+                        android:drawablePadding="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/heading"
+                        style="@style/BodyText"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Warning Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="✨ Features:\n✅ Hide text inside images\n✅ Hide one image inside another\n✅ Decode hidden messages from images\n✅ High security with minimal image quality loss"
-                android:textSize="18sp"
-                android:textColor="#444444"
-                android:fontFamily="@font/average_sans"
-                android:paddingBottom="15dp"/>
+                app:cardElevation="2dp"
+                android:background="@drawable/circle_background"
+                app:cardCornerRadius="8dp"
+                android:layout_marginBottom="16dp">
 
-            <!-- Encoding Instructions -->
-            <TextView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="⚠️ Important Warning"
+                        android:textColor="#FA0707"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Encoding and decoding should only be done within the app's respective cards. Using external tools or apps may result in incorrect or corrupted data."
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Features Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="🛠 How to Use:\n1️⃣ Open the app and navigate to the Encode section.\n2️⃣ Select an image to use as a cover.\n3️⃣ Enter the secret text or choose an image to hide.\n4️⃣ Click 'Encode' and save the output.\n5️⃣ To decode, upload the encoded image and click 'Decode'."
-                android:textSize="18sp"
-                android:textColor="#444444"
-                android:fontFamily="@font/average_sans"
-                android:paddingBottom="15dp"/>
+                app:cardElevation="2dp"
+                android:background="@drawable/circle_background"
+                app:cardCornerRadius="8dp"
+                android:layout_marginBottom="16dp">
 
-            <!-- PSNR and SSIM Information -->
-            <TextView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/app_features"
+                        style="@style/BodyText"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/backgroundTheme"
+                        android:layout_marginVertical="12dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/instructions_heading"
+                        style="@style/SubheadingText"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/encode_text"
+                        style="@style/BodyText"
+                        android:layout_marginTop="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/encode_image"
+                        style="@style/BodyText"
+                        android:layout_marginTop="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/decode_instructions"
+                        style="@style/BodyText"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Developer Section -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📊 Image Quality Metrics:\n🔹 PSNR (Peak Signal-to-Noise Ratio): Measures how much noise is added during encoding. Higher is better.\n🔹 SSIM (Structural Similarity Index): Compares structural similarity between images. Closer to 1 is better."
-                android:textSize="18sp"
-                android:textColor="#444444"
-                android:fontFamily="@font/average_sans"
-                android:paddingBottom="15dp"/>
+                app:cardElevation="2dp"
+                android:background="@drawable/circle_background"
+                app:cardCornerRadius="8dp">
 
-            <!-- Disclaimer -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="⚠️ Disclaimer:\n🔸 This app is for educational purposes only.\n🔸 Do NOT use it for illegal activities.\n🔸 The developer is not responsible for misuse."
-                android:textSize="18sp"
-                android:textColor="#D32F2F"
-                android:fontFamily="@font/average_sans"
-                android:textStyle="bold"
-                android:paddingBottom="10dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center">
 
-            <!-- Developer Name with Stylish UI -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Developed by"
-                android:textSize="18sp"
-                android:textColor="#333333"
-                android:fontFamily="@font/average_sans"
-                android:textStyle="bold"
-                android:paddingTop="20dp"
-                android:paddingBottom="5dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Developed by"
+                        style="@style/SubheadingText"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="KARAN SINGH"
-                android:textSize="26sp"
-                android:textColor="#7363F0"
-                android:fontFamily="@font/average_sans"
-                android:textStyle="bold"
-                android:paddingBottom="15dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Karan Singh"
+                        style="@style/DeveloperNameText"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/disclaimer"
+                        style="@style/DisclaimerText"
+                        android:layout_marginTop="16dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

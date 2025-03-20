@@ -50,6 +50,10 @@ android {
 }
 
 dependencies {
+
+    implementation libs.appcompat.v161
+    implementation libs.material.v190
+    implementation libs.constraintlayout.v214
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
