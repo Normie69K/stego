@@ -17,10 +17,10 @@ import java.io.IOException;
 public class Decode_img_Activity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    private ImageView imagePreview, decodedImagePreview;
+    private ImageView imagePreview;
     private Button uploadImageButton, decryptButton;
     private TextView decodedTextView;
-    private Bitmap selectedImage, decodedImage;
+    private Bitmap selectedImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,6 @@ public class Decode_img_Activity extends AppCompatActivity {
         setContentView(R.layout.activity_decode_text);
 
         imagePreview = findViewById(R.id.imagePreview);
-        decodedImagePreview = findViewById(R.id.decodedImagePreview);
         uploadImageButton = findViewById(R.id.uploadImageButton);
         decryptButton = findViewById(R.id.decryptButton);
         decodedTextView = findViewById(R.id.decodedTextView);
@@ -69,7 +68,7 @@ public class Decode_img_Activity extends AppCompatActivity {
         if (isTextEncoded) {
             decodeText();
         } else {
-            decodeHiddenImage();
+            Toast.makeText(this, "No text encoded in image", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -78,7 +77,8 @@ public class Decode_img_Activity extends AppCompatActivity {
         int height = selectedImage.getHeight();
 
         // Extract text length from first pixel (bits 1-7 of red channel)
-        int textLength = (Color.red(selectedImage.getPixel(0, 0)) >> 1);
+        int firstPixel = selectedImage.getPixel(0, 0);
+        int textLength = (Color.red(firstPixel) >> 1);
 
         if (textLength == 0) {
             decodedTextView.setText("No text found");
@@ -95,36 +95,25 @@ public class Decode_img_Activity extends AppCompatActivity {
                 if (x >= width || y >= height) break;
 
                 int pixel = selectedImage.getPixel(x, y);
-                c |= ((Color.red(pixel) & 0x01) << (bitPos - 0));
-                c |= ((Color.green(pixel) & 0x01) << (bitPos - 1));
-                c |= ((Color.blue(pixel) & 0x01) << (bitPos - 2));
+                int redBit = (Color.red(pixel) & 0x01);
+                int greenBit = (Color.green(pixel) & 0x01);
+                int blueBit = (Color.blue(pixel) & 0x01);
+
+                if (bitPos == 7 || bitPos == 4) {
+                    // Process 3 bits for positions 7-5 and 4-2
+                    c |= (redBit << (bitPos - 0));
+                    c |= (greenBit << (bitPos - 1));
+                    c |= (blueBit << (bitPos - 2));
+                } else if (bitPos == 1) {
+                    // Process last 2 bits (positions 1-0); blue bit ignored
+                    c |= (redBit << 1);
+                    c |= (greenBit << 0);
+                }
             }
             decodedText.append(c);
         }
 
         decodedTextView.setText("Decoded Text: " + decodedText.toString());
-        decodedImagePreview.setVisibility(ImageView.GONE);
         Toast.makeText(this, "Text decoded!", Toast.LENGTH_SHORT).show();
-    }
-
-    private void decodeHiddenImage() {
-        int width = selectedImage.getWidth();
-        int height = selectedImage.getHeight();
-
-        decodedImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int pixel = selectedImage.getPixel(x, y);
-                int decodedRed = (Color.red(pixel) & 0x07) << 5;
-                int decodedGreen = (Color.green(pixel) & 0x03) << 6;
-                int decodedBlue = (Color.blue(pixel) & 0x07) << 5;
-                decodedImage.setPixel(x, y, Color.rgb(decodedRed, decodedGreen, decodedBlue));
-            }
-        }
-
-        decodedImagePreview.setImageBitmap(decodedImage);
-        decodedImagePreview.setVisibility(ImageView.VISIBLE);
-        decodedTextView.setText("Decoded Image");
-        Toast.makeText(this, "Image decoded!", Toast.LENGTH_SHORT).show();
     }
 }

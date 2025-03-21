@@ -144,7 +144,7 @@
                 android:focusable="true"
                 android:fontFamily="@font/average_sans"
                 android:gravity="center"
-                android:text="@string/Decode_2"
+                android:text="@string/Decode"
                 android:textColor="#333333"
                 android:textSize="20sp"
                 android:textStyle="bold" />

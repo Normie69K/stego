@@ -1,12 +1,10 @@
 package com.example.myapplication;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -15,13 +13,12 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
-import java.io.OutputStream;
 
 public class Decode_text_activity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private ImageView imagePreview, decodedImagePreview;
-    private Button uploadImageButton, decryptButton, downloadButton;
+    private Button uploadImageButton, decryptButton;
     private TextView decodedTextView;
     private Bitmap selectedImage, decodedImage;
 
@@ -30,18 +27,14 @@ public class Decode_text_activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decode);
 
-        // Initialize views
         imagePreview = findViewById(R.id.imagePreview);
         decodedImagePreview = findViewById(R.id.decodedImagePreview);
         uploadImageButton = findViewById(R.id.uploadImageButton);
         decryptButton = findViewById(R.id.decryptButton);
-        downloadButton = findViewById(R.id.downloadButton);
         decodedTextView = findViewById(R.id.decodedTextView);
 
-        // Set click listeners
         uploadImageButton.setOnClickListener(v -> openGallery());
         decryptButton.setOnClickListener(v -> decodeImage());
-        downloadButton.setOnClickListener(v -> saveDecodedImage());
     }
 
     private void openGallery() {
@@ -85,7 +78,8 @@ public class Decode_text_activity extends AppCompatActivity {
         int height = selectedImage.getHeight();
 
         // Extract text length from first pixel (bits 1-7 of red channel)
-        int textLength = (Color.red(selectedImage.getPixel(0, 0)) >> 1);
+        int firstPixel = selectedImage.getPixel(0, 0);
+        int textLength = (Color.red(firstPixel) >> 1);
 
         if (textLength == 0) {
             decodedTextView.setText("No text found");
@@ -102,16 +96,27 @@ public class Decode_text_activity extends AppCompatActivity {
                 if (x >= width || y >= height) break;
 
                 int pixel = selectedImage.getPixel(x, y);
-                c |= ((Color.red(pixel) & 0x01) << (bitPos - 0));
-                c |= ((Color.green(pixel) & 0x01) << (bitPos - 1));
-                c |= ((Color.blue(pixel) & 0x01) << (bitPos - 2));
+                int redBit = (Color.red(pixel) & 0x01);
+                int greenBit = (Color.green(pixel) & 0x01);
+                int blueBit = (Color.blue(pixel) & 0x01);
+
+                if (bitPos == 7 || bitPos == 4) {
+                    // Process 3 bits for positions 7-5 and 4-2
+                    c |= (redBit << (bitPos - 0));
+                    c |= (greenBit << (bitPos - 1));
+                    c |= (blueBit << (bitPos - 2));
+                } else if (bitPos == 1) {
+                    // Process last 2 bits (positions 1-0)
+                    c |= (redBit << 1);
+                    c |= (greenBit << 0);
+                    // Blue bit ignored
+                }
             }
             decodedText.append(c);
         }
 
         decodedTextView.setText("Decoded Text: " + decodedText.toString());
         decodedImagePreview.setVisibility(ImageView.GONE);
-        downloadButton.setVisibility(ImageView.GONE); // Hide download button for text
         Toast.makeText(this, "Text decoded!", Toast.LENGTH_SHORT).show();
     }
 
@@ -133,31 +138,6 @@ public class Decode_text_activity extends AppCompatActivity {
         decodedImagePreview.setImageBitmap(decodedImage);
         decodedImagePreview.setVisibility(ImageView.VISIBLE);
         decodedTextView.setText("Decoded Image");
-        downloadButton.setVisibility(ImageView.VISIBLE); // Show download button for image
         Toast.makeText(this, "Image decoded!", Toast.LENGTH_SHORT).show();
-    }
-
-    private void saveDecodedImage() {
-        if (decodedImage == null) {
-            Toast.makeText(this, "No decoded image to save", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Save the decoded image to the gallery
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, "decoded_image_" + System.currentTimeMillis() + ".png");
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Stego/");
-
-        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        if (uri != null) {
-            try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
-                decodedImage.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                Toast.makeText(this, "Image saved to gallery", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 }
